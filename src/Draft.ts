@@ -7,18 +7,16 @@ import io from './server';
 
 const logger = loggerFactory({ hideLogsDuringTest: true });
 
-class Draft {
+class DraftMember {
 
     player: Player;
     tourId: string;
     action: string;
-    lineup: DrumCorpsCaption[];
 
-    constructor(options: RoomOptions) {
-        this.player = options.player;
-        this.tourId = options.tourId;
-        this.action = options.action;
-        this.lineup = [];
+    constructor(player: Player, tourId: string, action: string) {
+        this.player = player;
+        this.tourId = tourId;
+        this.action = action;
     }
 
     init(): boolean {
@@ -39,44 +37,46 @@ class Draft {
                 logger.warn('Could not join room', 'Draft');
                 return false;
             }
+            return true;
         }
         return false;
     }
 
+
+
     isReady(): void {
         this.player.socket.on(Events.CLIENT_READY_FOR_DRAFT, () => {
             roomManager.markPlayerReady(this.tourId, this.player.playerId);
+            this.playerEndsTurn();
             if (roomManager.checkPlayersReady(this.tourId)) {
-                this.beginDraft();
+                roomManager.beginDraft(this.tourId);
             }
         });
     }
 
-    beginDraft(): void {
-
+    endDraft(): void {
+        roomManager._endDraft(this.tourId);
     }
 
     onDisconnect(): void {
 
     }
 
-    endTurn(): void {
+    playerEndsTurn(): void {
         this.player.socket.on(Events.CLIENT_PLAYER_ENDS_TURN, (pick: DrumCorpsCaption | undefined) => {
             if (pick) {
-                this.lineup.push(pick);
-                roomManager.removePick(this.tourId, pick);
+                roomManager.playerEndsTurn(this.tourId, pick);
             }
-        })
+        });
     }
 
-    private _resetTimeout(): void {
-
-    }
-
-    private _nextTurn(): void {
+    onPlayerLineupComplete(): void {
+        this.player.socket.on(Events.CLIENT_LINEUP_COMPLETE, () => {
+            roomManager.playerLineupComplete(this.tourId, this.player.playerId);
+        });
 
     }
 
 }
 
-export default Draft;
+export default DraftMember;

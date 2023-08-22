@@ -3,7 +3,7 @@ import { createAdapter } from 'socket.io-redis-adapter';
 import { createClient } from 'redis';
 import { loggerFactory } from 'visible_logger';
 import dotenv from 'dotenv';
-import Draft from './Draft';
+import DraftMember from './Draft';
 import { Player, Events } from './types';
 
 const logger = loggerFactory({ hideLogsDuringTest: true });
@@ -26,28 +26,32 @@ try {
 
 logger.info('Server initialized', 'Controller');
 
-const draftNamespace = io.of('/draft');
+//const draftNamespace = io.of('/draft');
 
-draftNamespace.on('connection', (socket: Socket) => {
+io.on('connection', (socket: Socket) => {
     const tourId = socket.handshake.query['tourId'] as string;
     const playerId = socket.handshake.query['playerId'] as string;
     const displayName = socket.handshake.query['displayName'] as string;
     const action = socket.handshake.query['action'] as string;
 
+    socket.join('ROOMTEST');
+
     let player: Player = {
         playerId,
         displayName,
         socket,
-        isReady: false
+        isReady: false,
+        draftComplete: false,
     }
 
     // Create draft room object for player
-    const draft = new Draft({ player, tourId, action });
-    if (!draft.init()) {
+    const draftMember = new DraftMember(player, tourId, action);
+    if (!draftMember.init()) {
         logger.warn('Player could not connect to room', 'Controller');
         socket.disconnect();
     }
-    draft.isReady();
+    draftMember.isReady();
+    draftMember.onPlayerLineupComplete();
 
 });
 

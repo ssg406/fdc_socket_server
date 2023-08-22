@@ -1,4 +1,4 @@
 node_modules/
 .env
 firebase.js
-build/
+build/pseudo.md

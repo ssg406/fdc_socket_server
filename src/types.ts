@@ -48,6 +48,7 @@ export interface Player {
     displayName: string;
     socket: Socket;
     isReady: boolean;
+    draftComplete: boolean;
 }
 
 export interface DraftStore {
@@ -58,10 +59,13 @@ export interface DraftStore {
     turnTimeout?: NodeJS.Timeout;
 }
 
+export type RoomStore = { [key: string]: DraftStore }
+
 export interface RoomOptions {
     player: Player;
     tourId: string;
     action: string;
+    maxTurnTime: number;
 }
 
 export abstract class Events {
@@ -75,4 +79,10 @@ export abstract class Events {
     static readonly SERVER_UPDATE_JOINED_PLAYERS = 'SERVER_UPDATE_JOINED_PLAYERS';
     static readonly CLIENT_READY_FOR_DRAFT = 'CLIENT_READY_FOR_DRAFT';
     static readonly CLIENT_PLAYER_ENDS_TURN = 'CLIENT_PLAYER_ENDS_TURN';
+    static readonly SERVER_UPDATED_AVAILABLE_PICKS = 'SERVER_UPDATED_AVAILABLE_PICKS';
+    static readonly SERVER_DRAFT_OVER = 'SERVER_DRAFT_OVER';
+    static readonly SERVER_DRAFT_BEGIN = 'SERVER_DRAFT_BEGIN';
+    static readonly SERVER_START_TURN = 'SERVER_START_TURN';
+    static readonly SERVER_END_TURN = 'SERVER_END_TURN';
+    static readonly CLIENT_LINEUP_COMPLETE = 'CLIENT_LINEUP_COMPLETE';
 }
