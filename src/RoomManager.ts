@@ -1,5 +1,6 @@
 import { loggerFactory } from 'visible_logger';
 import { DraftStore, DrumCorpsCaption, Events, Player, RoomStore } from './types';
+import { writeData } from './util/data';
 import { allPicks } from './util/allPicks';
 import io from './server';
 
@@ -275,7 +276,7 @@ class RoomManager {
         io.to(tourId).emit(Events.SERVER_DRAFT_OVER);
         this.rooms[tourId].clients.forEach(client => client.socket.disconnect());
         const leftOverPicks = this.rooms[tourId].availablePicks;
-        // writeData.writeRemainingPicks(tourId, leftOverPicks);
+        writeData.writeRemainingPicks(tourId, leftOverPicks);
         delete this.rooms[tourId];
     }
 

@@ -1,5 +1,9 @@
 import { Collection, getRepository } from 'fireorm';
+import * as fireorm from 'fireorm';
 import { DrumCorpsCaption } from '../types';
+import db from './firebase';
+
+fireorm.initialize(db);
 
 @Collection('remainingPicks')
 export class RemainingPicks {

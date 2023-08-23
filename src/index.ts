@@ -2,10 +2,15 @@ import { loggerFactory } from 'visible_logger';
 import io from './server';
 import dotenv from 'dotenv';
 
+
+if (process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'test') {
+    dotenv.config();
+}
+
 const logger = loggerFactory({ hideLogsDuringTest: true });
 
-dotenv.config();
+const port = parseInt(process.env.PORT!) || 3000;
 
+io.listen(port);
 
-io.listen(3000);
-logger.info(`Listening on port ${process.env.PORT}`, 'Server');
+logger.info(`Server is listening on port ${port}`, 'Server')

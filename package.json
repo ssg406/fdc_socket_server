@@ -6,8 +6,10 @@
   "scripts": {
     "test": "NODE_ENV=test mocha -r ts-node/register test/**/*.spec.ts --exit",
     "build": "tsc",
-    "start": "npm run build && node build/index.js",
-    "dev": "NODE_ENV=dev tsnd --respawn src/index.ts"
+    "dev": "NODE_ENV=dev tsnd --respawn src/index.ts",
+    "start": "npm run build && DEBUG=* node build/index.js",
+    "postinstall": "tsc",
+    "deploy": "git add . && git commit -m Heroku && git push heroku master"
   },
   "keywords": [],
   "author": "",
@@ -41,5 +43,8 @@
     "socket.io-adapter": "^2.5.2",
     "socket.io-redis": "^6.1.1",
     "socket.io-redis-adapter": "^8.4.6"
+  },
+  "engines": {
+    "node": "18.12.0"
   }
 }
