@@ -1,6 +1,5 @@
 import { assert } from 'chai';
 import roomManager from '../src/RoomManager';
-import { Player } from '../src/types';
 import { testPlayers } from './testData';
 
 describe('Room Manager basic functions', () => {

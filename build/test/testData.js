@@ -1,33 +1,28 @@
-import { DraftPlayer } from '../src/types';
-import { Player } from '../src/util/data';
-import { Socket } from 'socket.io';
-import { mock } from 'ts-mockito';
-
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.testPlayers = void 0;
+const data_1 = require("../src/util/data");
+const socket_io_1 = require("socket.io");
+const ts_mockito_1 = require("ts-mockito");
 const mockedSockets = [
-    mock(Socket),
-    mock(Socket),
-    mock(Socket),
-    mock(Socket),
-]
-
-const playerOne = new Player();
+    (0, ts_mockito_1.mock)(socket_io_1.Socket),
+    (0, ts_mockito_1.mock)(socket_io_1.Socket),
+    (0, ts_mockito_1.mock)(socket_io_1.Socket),
+    (0, ts_mockito_1.mock)(socket_io_1.Socket),
+];
+const playerOne = new data_1.Player();
 playerOne.id = '1';
 playerOne.displayName = 'sam';
-
-const playerTwo = new Player();
+const playerTwo = new data_1.Player();
 playerTwo.id = '2';
 playerTwo.displayName = 'ben';
-
-const playerThree = new Player();
+const playerThree = new data_1.Player();
 playerThree.id = '3';
 playerThree.displayName = 'james';
-
-const playerFour = new Player();
+const playerFour = new data_1.Player();
 playerFour.id = '4';
 playerFour.displayName = 'ryan';
-
-
-export const testPlayers: DraftPlayer[] = [
+exports.testPlayers = [
     {
         model: playerOne,
         isReady: false,
@@ -52,4 +47,4 @@ export const testPlayers: DraftPlayer[] = [
         socket: mockedSockets[3],
         draftComplete: false,
     },
-]
+];

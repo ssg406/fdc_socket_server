@@ -35,7 +35,7 @@ describe('Room Manager draft functions', () => {
         roomManager.checkPlayersReady(tourId).should.be.false;
 
         testPlayers.forEach((player) => {
-            roomManager.markPlayerReady(tourId, player.playerId);
+            roomManager.markPlayerReady(tourId, player.model.id);
         });
 
         roomManager.checkPlayersReady(tourId).should.be.true;
@@ -45,9 +45,9 @@ describe('Room Manager draft functions', () => {
         const tourId = 'shufflePlayersTest';
         setupTestRoom(tourId);
 
-        const playerIdsArray = roomManager.rooms[tourId].clients.map((player) => player.playerId);
+        const playerIdsArray = roomManager.rooms[tourId].clients.map((player) => player.model.id);
         roomManager.shufflePlayers(tourId);
-        const shuffledPlayerIdsArray = roomManager.rooms[tourId].clients.map((player) => player.playerId);
+        const shuffledPlayerIdsArray = roomManager.rooms[tourId].clients.map((player) => player.model.id);
 
         JSON.stringify(playerIdsArray).should.not.equal(JSON.stringify(shuffledPlayerIdsArray));
 
@@ -103,7 +103,7 @@ describe('Room Manager draft functions', () => {
 
         roomManager.startTurn(tourId);
 
-        assert.equal(roomManager.rooms[tourId].turnNumber, 0);
+        roomManager.rooms[tourId].turnNumber.should.equal(0);
         roomManager.playerEndsTurn(tourId, allPicks[0]);
         clock.tick(100);
 
@@ -122,20 +122,54 @@ describe('Room Manager draft functions', () => {
         roomManager.rooms[tourId].turnNumber.should.equal(0);
         spy.shufflePlayers.should.have.been.calledOnce;
 
-
     });
 
-    it('markPlayerComplete marks a player as complete and ends draft when all players complete', () => {
-        // const spy = sandbox.spy(roomManager);
-        // const tourId = 'lineupCompleteTest';
-        // const stub = sandbox.stub(writeData, 'writeRemainingPicks').resolves();
-        // setupTestRoom(tourId);
-        // roomManager.beginDraft(tourId);
-        // const remainingPicks = roomManager.rooms[tourId].availablePicks;
-        // testPlayers.forEach((player) => {
-        //     roomManager.playerLineupComplete(tourId, player.playerId);
-        // });
-        // assert.isTrue(spy._endDraft.calledOnce);
-        // assert.isTrue(stub.calledOnceWith(tourId, remainingPicks));
+    it('Removing player of current turn ends turn and recalculates turn number', () => {
+        const tourId = 'testRemoval';
+        const spy = sandbox.spy(clock, 'clearTimeout');
+        setupTestRoom(tourId);
+
+        roomManager.startTurn(tourId);
+
+        roomManager.rooms[tourId].turnNumber.should.equal(0);
+        roomManager.playerEndsTurn(tourId, allPicks[0]);
+        clock.tick(100);
+
+        roomManager.rooms[tourId].turnNumber.should.equal(1);
+        roomManager.playerEndsTurn(tourId, allPicks[1]);
+        clock.tick(100);
+
+        roomManager.rooms[tourId].turnNumber.should.equal(2);
+
+        roomManager.removeActivePlayer(testPlayers[roomManager.rooms[tourId].turnNumber], tourId);
+        clock.tick(100);
+
+        roomManager.rooms[tourId].turnNumber.should.equal(1);
+
+        spy.should.have.been.calledThrice;
+
+    })
+
+    it('Removing non-current turn player ', () => {
+        const tourId = 'testRemoval';
+        const spy = sandbox.spy(clock, 'clearTimeout');
+        setupTestRoom(tourId);
+
+        roomManager.startTurn(tourId);
+
+        roomManager.rooms[tourId].turnNumber.should.equal(0);
+        roomManager.playerEndsTurn(tourId, allPicks[0]);
+        clock.tick(100);
+
+        roomManager.rooms[tourId].turnNumber.should.equal(1);
+
+        roomManager.removeActivePlayer(testPlayers[0], tourId);
+
+        roomManager.rooms[tourId].turnNumber.should.equal(1);
+
+        roomManager.playerEndsTurn(tourId, allPicks[10]);
+        clock.tick(100);
+
+        roomManager.rooms[tourId].turnNumber.should.equal(2);
     });
 });

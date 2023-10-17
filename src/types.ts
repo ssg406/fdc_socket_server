@@ -1,5 +1,6 @@
 import { Socket } from "socket.io";
 import { Adapter } from "socket.io-adapter";
+import { Player } from './util/data';
 
 export enum Caption {
     ge1 = 'ge1',
@@ -43,9 +44,8 @@ export interface DrumCorpsCaption {
     caption: Caption;
 }
 
-export interface Player {
-    playerId: string;
-    displayName: string;
+export interface DraftPlayer {
+    model: Player;
     socket: Socket;
     isReady: boolean;
     draftComplete: boolean;
@@ -53,22 +53,31 @@ export interface Player {
 
 export interface DraftStore {
     tourId: string;
-    clients: Player[];
+    clients: DraftPlayer[];
     availablePicks: DrumCorpsCaption[];
     turnNumber: number;
     turnTimeout?: NodeJS.Timeout;
+    draftInProgress: boolean;
+    roundNumber: number;
+    missedTurnTimeout?: NodeJS.Timeout;
 }
+
+export interface PickMessage {
+    pick: DrumCorpsCaption;
+}
+
+export type Lineup = { [key: string]: DrumCorps }
 
 export type RoomStore = { [key: string]: DraftStore }
 
-export interface RoomOptions {
-    player: Player;
+export interface ClientIdentification {
+    playerId: string;
     tourId: string;
     action: string;
-    maxTurnTime: number;
 }
 
 export abstract class Events {
+    static readonly CLIENT_REQUESTS_ROOM = 'CLIENT_REQUESTS_ROOM';
     static readonly CONNECT = 'CONNECT';
     static readonly SERVER_ROOM_CREATED = 'SERVER_ROOM_CREATED';
     static readonly SERVER_ROOM_CREATE_FAILED = 'SERVER_ROOM_CREATE_FAILED';
@@ -85,4 +94,14 @@ export abstract class Events {
     static readonly SERVER_START_TURN = 'SERVER_START_TURN';
     static readonly SERVER_END_TURN = 'SERVER_END_TURN';
     static readonly CLIENT_LINEUP_COMPLETE = 'CLIENT_LINEUP_COMPLETE';
+    static readonly CLIENT_OWNER_BEGIN_DRAFT = 'CLIENT_OWNER_BEGIN_DRAFT';
+    static readonly CLIENT_OWNER_CANCEL_DRAFT = 'CLIENT_OWNER_CANCEL_DRAFT';
+    static readonly SERVER_DRAFT_CANCELLED_BY_OWNER = 'SERVER_DRAFT_CANCELLED_BY_OWNER';
+    static readonly SERVER_ALL_PLAYERS_READY = 'SERVER_ALL_PLAYERS_READY';
+    static readonly SERVER_PLAYER_LEFT_DRAFT = 'SERVER_PLAYER_LEFT_DRAFT';
+    static readonly SERVER_AUTO_SELECTED_PICK = 'SERVER_AUTO_SELECTED_PICK';
+    static readonly SERVER_CLIENT_MISSED_TURN = 'SERVER_CLIENT_MISSED_TURN';
+    static readonly CLIENT_SENDS_AUTO_PICK = 'CLIENT_SENDS_AUTO_PICK';
+    static readonly SERVER_ERROR = 'SERVER_ERROR';
+    static readonly CLIENT_LEAVE_ROOM = 'CLIENT_LEAVE_ROOM';
 }

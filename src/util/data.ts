@@ -1,6 +1,6 @@
 import { Collection, getRepository } from 'fireorm';
 import * as fireorm from 'fireorm';
-import { DrumCorpsCaption } from '../types';
+import { DrumCorpsCaption, Lineup } from '../types';
 import db from './firebase';
 
 fireorm.initialize(db);
@@ -14,11 +14,30 @@ export class RemainingPicks {
 
 const remainingPicksRepository = getRepository(RemainingPicks);
 
-export const writeData = {
-    writeRemainingPicks: async function (tourId: string, leftOverPicks: DrumCorpsCaption[]) {
-        const remainingPicks = new RemainingPicks();
-        remainingPicks.tourId = tourId;
-        remainingPicks.leftOverPicks = leftOverPicks;
-        await remainingPicksRepository.create(remainingPicks);
+@Collection('players')
+export class Player {
+    id!: string;
+    displayName?: string;
+    about?: string;
+    selectedCorps?: string;
+    avatarString?: string;
+    isActive?: boolean;
+}
+
+const playersRepository = getRepository(Player);
+
+export async function getPlayer(playerId: string): Promise<Player> {
+    const player = await playersRepository.findById(playerId);
+    if (!player) {
+        return Promise.reject()
     }
+    return player;
+}
+
+
+export async function writeRemainingPicks(tourId: string, leftOverPicks: DrumCorpsCaption[]): Promise<void> {
+    const remainingPicks = new RemainingPicks();
+    remainingPicks.tourId = tourId;
+    remainingPicks.leftOverPicks = leftOverPicks;
+    await remainingPicksRepository.create(remainingPicks);
 }
