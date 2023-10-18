@@ -18,23 +18,26 @@ class DraftMember {
         if (this.action === 'create') {
             if (!RoomManager_1.default.addRoom(this.tourId, this.player)) {
                 logger.warn('Could not initialize room', 'Draft');
-                this.player.socket.emit(types_1.Events.SERVER_ERROR, { errorMessage: 'Could not create room' });
+                this.player.socket.emit(types_1.Events.SERVER_ERROR, {
+                    errorMessage: 'Could not create room',
+                });
                 return false;
             }
             if (!RoomManager_1.default.addPlayer(this.player, this.tourId)) {
                 logger.warn('Could not join player to room', 'Draft');
-                this.player.socket.emit(types_1.Events.SERVER_ERROR, { errorMessage: 'Could not join room' });
+                this.player.socket.emit(types_1.Events.SERVER_ERROR, {
+                    errorMessage: 'Could not join room',
+                });
                 return false;
             }
-            // Allow room creator to start and cancel draft
-            this.ownerStartsDraft();
-            this.ownerCancelsDraft();
             return true;
         }
         if (this.action === 'join') {
             if (!RoomManager_1.default.addPlayer(this.player, this.tourId)) {
                 logger.warn('Could not join room', 'Draft');
-                this.player.socket.emit(types_1.Events.SERVER_ERROR, { errorMessage: 'Could not join room' });
+                this.player.socket.emit(types_1.Events.SERVER_ERROR, {
+                    errorMessage: 'Could not join room',
+                });
                 return false;
             }
             return true;
@@ -62,8 +65,13 @@ class DraftMember {
     }
     onDisconnect() {
         this.player.socket.on('disconnect', () => {
-            logger.info(`Socket is disconnecting for player ${this.player.model.id}`, 'Player Obj');
-            if (RoomManager_1.default.rooms[this.tourId].draftInProgress) {
+            var _a;
+            logger.info(`Socket is disconnecting for player ${this.player.model.id}`, 'DraftMember');
+            // If the room no longer exists, no need to remove player
+            if (!RoomManager_1.default.rooms[this.tourId])
+                return;
+            // Check if draft is in progress and call appropriate room manager method
+            if ((_a = RoomManager_1.default.rooms[this.tourId]) === null || _a === void 0 ? void 0 : _a.draftInProgress) {
                 RoomManager_1.default.removeActivePlayer(this.player, this.tourId);
             }
             else {
@@ -89,6 +97,9 @@ class DraftMember {
     onClientLeaveRoom() {
         this.player.socket.on(types_1.Events.CLIENT_LEAVE_ROOM, () => {
             logger.info('Client has requested to leave room', 'PlayerObj');
+            const room = RoomManager_1.default.rooms[this.tourId];
+            if (!room)
+                return;
             if (RoomManager_1.default.rooms[this.tourId].draftInProgress) {
                 RoomManager_1.default.removeActivePlayer(this.player, this.tourId);
             }

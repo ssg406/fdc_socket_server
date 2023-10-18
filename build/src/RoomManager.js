@@ -26,11 +26,19 @@ class RoomManager {
      * @returns boolean indiicating success of room creation
      */
     addRoom(tourId, initialPlayer) {
+        // If the room exists, return immediately
         if (this.rooms[tourId]) {
-            logger.warn('Attempted to add room - room already exists', 'Room Manager');
-            return false;
+            logger.warn('Room already exists, keeping existing room', 'Room Manager');
+            return true;
         }
-        this.rooms[tourId] = { tourId: tourId, clients: [], availablePicks: allPicks_1.allPicks, turnNumber: 0, draftInProgress: false, roundNumber: 1 };
+        this.rooms[tourId] = {
+            tourId: tourId,
+            clients: [],
+            availablePicks: allPicks_1.allPicks,
+            turnNumber: 0,
+            draftInProgress: false,
+            roundNumber: 1,
+        };
         logger.success(`Room ${tourId} initialized`, 'Room Manager');
         initialPlayer.socket.emit(types_1.Events.SERVER_ROOM_CREATED);
         return true;
@@ -66,10 +74,11 @@ class RoomManager {
             logger.warn(`Player attempted to join draft already in progress`, tourId);
             return false;
         }
-        const existingPlayer = room.clients.find(p => p.model.id === player.model.id);
+        const existingPlayer = room.clients.find((p) => p.model.id === player.model.id);
+        // Player is left in room if already joined
         if (existingPlayer) {
-            logger.warn(`Attempted to add player ${player.model.id} to room but player already exists`, tourId);
-            return false;
+            logger.warn(`Player ${player.model.id} is already in the room`, tourId);
+            return true;
         }
         room.clients.push(player);
         player.socket.join(tourId);
@@ -103,7 +112,7 @@ class RoomManager {
             logger.warn(`Attempted to remove player but room ${tourId} was not found`, 'Room Manager');
             return false;
         }
-        room.clients = room.clients.filter(client => client.model.id !== player.model.id);
+        room.clients = room.clients.filter((client) => client.model.id !== player.model.id);
         if (room.clients.length === 0) {
             logger.info('Room is now empty, removing room', tourId);
             return this.removeRoom(tourId);
@@ -126,16 +135,19 @@ class RoomManager {
     removeActivePlayer(player, tourId) {
         const currentTurnNumber = this.rooms[tourId].turnNumber;
         const currentPlayer = this.rooms[tourId].clients[currentTurnNumber];
-        this.rooms[tourId].clients = this.rooms[tourId].clients.filter(client => client.model.id !== player.model.id);
+        this.rooms[tourId].clients = this.rooms[tourId].clients.filter((client) => client.model.id !== player.model.id);
         if (currentPlayer.model.id === player.model.id) {
             // End turn
             clearTimeout(this.rooms[tourId].turnTimeout);
             // Recalculate turn number
-            this.rooms[tourId].turnNumber = currentTurnNumber === 0 ? 0 : currentTurnNumber - 1;
+            this.rooms[tourId].turnNumber =
+                currentTurnNumber === 0 ? 0 : currentTurnNumber - 1;
             // Remove disconnected player
             this.startTurn(tourId);
         }
-        server_1.default.to(tourId).emit(types_1.Events.SERVER_PLAYER_LEFT_DRAFT, { displayName: player.model.displayName });
+        server_1.default.to(tourId).emit(types_1.Events.SERVER_PLAYER_LEFT_DRAFT, {
+            displayName: player.model.displayName,
+        });
         // If no players remain
         if (this.rooms[tourId].clients.length === 0) {
             logger.info('No players left, removing room', tourId);
@@ -169,7 +181,7 @@ class RoomManager {
         if (!this.rooms[tourId])
             throw Error('Could not check if players are ready: tour not found');
         logger.info(`Checking if players are ready...`, tourId);
-        return this.rooms[tourId].clients.every(client => client.isReady === true);
+        return this.rooms[tourId].clients.every((client) => client.isReady === true);
     }
     /**
      * Begins the draft
@@ -196,7 +208,10 @@ class RoomManager {
         while (currentIndex !== 0) {
             randomIndex = Math.floor(Math.random() * currentIndex);
             currentIndex--;
-            [players[currentIndex], players[randomIndex]] = [players[randomIndex], players[currentIndex]];
+            [players[currentIndex], players[randomIndex]] = [
+                players[randomIndex],
+                players[currentIndex],
+            ];
         }
         this.rooms[tourId].clients = players;
     }
@@ -208,9 +223,9 @@ class RoomManager {
     removePick(tourId, pick) {
         if (!this.rooms[tourId])
             throw Error('Could not remove pick: room does not exist');
-        logger.info(`Removing pick ${pick} from pool`, tourId);
+        logger.info(`Removing pick ${pick.corps} ${pick.caption} from pool`, tourId);
         let currentPicks = this.rooms[tourId].availablePicks;
-        currentPicks = currentPicks.filter(p => p.drumCorpsCaptionId !== pick.drumCorpsCaptionId);
+        currentPicks = currentPicks.filter((p) => p.drumCorpsCaptionId !== pick.drumCorpsCaptionId);
         this.rooms[tourId].availablePicks = currentPicks;
     }
     /**
@@ -272,7 +287,7 @@ class RoomManager {
      * @param pick DrumCorpsCaption selected by server or player
      */
     _processTurnResult(tourId, pick) {
-        logger.log(`Got pick, processing result: ${pick === null || pick === void 0 ? void 0 : pick.corps} ${pick === null || pick === void 0 ? void 0 : pick.caption}`);
+        logger.info(`Got pick, processing result: ${pick === null || pick === void 0 ? void 0 : pick.corps} ${pick === null || pick === void 0 ? void 0 : pick.caption}`, tourId);
         if (pick) {
             this.removePick(tourId, pick);
             logger.info(`${this.rooms[tourId].availablePicks.length} picks remaining.`);
@@ -300,7 +315,7 @@ class RoomManager {
                 client.draftComplete = true;
             }
         }
-        const allLineupsComplete = this.rooms[tourId].clients.every(client => client.draftComplete);
+        const allLineupsComplete = this.rooms[tourId].clients.every((client) => client.draftComplete);
         if (allLineupsComplete) {
             this._endDraft(tourId);
         }
@@ -312,8 +327,10 @@ class RoomManager {
      */
     _endDraft(tourId) {
         server_1.default.to(tourId).emit(types_1.Events.SERVER_DRAFT_OVER);
+        this.clearTurnTimers(tourId);
         const leftOverPicks = this.rooms[tourId].availablePicks;
         (0, data_1.writeRemainingPicks)(tourId, leftOverPicks);
+        (0, data_1.markTourDraftComplete)(tourId);
         delete this.rooms[tourId];
     }
     /**
@@ -321,8 +338,20 @@ class RoomManager {
      * @param tourId tour ID associated with room
      */
     cancelDraft(tourId) {
+        logger.info('Owner is requesting to cancel draft', tourId);
         server_1.default.to(tourId).emit(types_1.Events.SERVER_DRAFT_CANCELLED_BY_OWNER);
+        this.clearTurnTimers(tourId);
         delete this.rooms[tourId];
+    }
+    /**
+     * Clears timers associated with draft room
+     * @param tourId tour ID associated with room
+     */
+    clearTurnTimers(tourId) {
+        logger.info('Clearing all turn timeouts', tourId);
+        const room = this.rooms[tourId];
+        clearTimeout(room.turnTimeout);
+        clearTimeout(room.missedTurnTimeout);
     }
     /**
      * Utility method used in testing, clears all data in rooms object

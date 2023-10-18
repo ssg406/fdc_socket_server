@@ -34,5 +34,7 @@ else {
     }),
 });
 const db = firebase_admin_1.default.firestore();
+// Use local emulator
+//connectFirestoreEmulator(db, '127.0.0.1', 8080);
 logger.info('Database initialized', 'Firestore');
 exports.default = db;

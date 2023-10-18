@@ -41,10 +41,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.writeRemainingPicks = exports.getPlayer = exports.Player = exports.RemainingPicks = void 0;
+exports.markTourDraftComplete = exports.writeRemainingPicks = exports.getPlayer = exports.Player = exports.RemainingPicks = void 0;
 const fireorm_1 = require("fireorm");
 const fireorm = __importStar(require("fireorm"));
 const firebase_1 = __importDefault(require("./firebase"));
+const visible_logger_1 = __importDefault(require("visible_logger"));
 fireorm.initialize(firebase_1.default);
 let RemainingPicks = exports.RemainingPicks = class RemainingPicks {
 };
@@ -77,3 +78,22 @@ function writeRemainingPicks(tourId, leftOverPicks) {
     });
 }
 exports.writeRemainingPicks = writeRemainingPicks;
+let Tour = class Tour {
+};
+Tour = __decorate([
+    (0, fireorm_1.Collection)('tours')
+], Tour);
+exports.default = Tour;
+const toursRepository = (0, fireorm_1.getRepository)(Tour);
+function markTourDraftComplete(tourId) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const tour = yield toursRepository.findById(tourId);
+        if (!tour) {
+            visible_logger_1.default.warn(`Could not find tour ${tourId} in database, unable to mark complete`, 'Firestore');
+            return;
+        }
+        tour.draftComplete = true;
+        yield toursRepository.update(tour);
+    });
+}
+exports.markTourDraftComplete = markTourDraftComplete;
