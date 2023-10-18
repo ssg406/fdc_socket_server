@@ -9,7 +9,7 @@
     "dev": "cross-env NODE_ENV=dev tsnd --respawn src/index.ts",
     "start": "npm run build && DEBUG=* node build/index.js",
     "postinstall": "tsc",
-    "deploy": "git add . && git commit -m Heroku && git push heroku master"
+    "deploy": "git add . && git commit -m Heroku && git push heroku main"
   },
   "keywords": [],
   "author": "",
@@ -32,8 +32,7 @@
     "ts-mockito": "^2.6.1",
     "ts-node": "^10.9.1",
     "ts-node-dev": "^2.0.0",
-    "ts-sinon": "^2.0.2",
-    "visible_logger": "^1.0.1"
+    "ts-sinon": "^2.0.2"
   },
   "dependencies": {
     "firebase": "^10.5.0",
@@ -44,7 +43,8 @@
     "socket.io": "^4.7.1",
     "socket.io-adapter": "^2.5.2",
     "socket.io-redis": "^6.1.1",
-    "socket.io-redis-adapter": "^8.4.6"
+    "socket.io-redis-adapter": "^8.4.6",
+    "visible_logger": "^1.0.1"
   },
   "engines": {
     "node": "18.12.0"
