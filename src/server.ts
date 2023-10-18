@@ -15,18 +15,18 @@ const io = new Server({
   transports: ['websocket'],
 });
 
-const pubClient = createClient({
-  url: process.env.REDISCLOUD_URL,
-});
-const subClient = pubClient.duplicate();
+// const pubClient = createClient({
+//   url: process.env.REDISCLOUD_URL,
+// });
+// const subClient = pubClient.duplicate();
 
-try {
-  Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
-    io.adapter(createAdapter(pubClient, subClient));
-  });
-} catch (error) {
-  logger.error('Unable to create Redis adapter', error as Error);
-}
+// try {
+//   Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
+//     io.adapter(createAdapter(pubClient, subClient));
+//   });
+// } catch (error) {
+//   logger.error('Unable to create Redis adapter', error as Error);
+// }
 
 logger.info('Server initialized', 'Controller');
 
