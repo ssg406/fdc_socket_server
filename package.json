@@ -4,9 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "NODE_ENV=test mocha -r ts-node/register test/**/*.spec.ts --exit",
+    "test": "cross-env NODE_ENV=test mocha -r ts-node/register test/**/*.spec.ts --exit",
     "build": "tsc",
-    "dev": "NODE_ENV=dev tsnd --respawn src/index.ts",
+    "dev": "cross-env NODE_ENV=dev tsnd --respawn src/index.ts",
     "start": "npm run build && DEBUG=* node build/index.js",
     "postinstall": "tsc",
     "deploy": "git add . && git commit -m Heroku && git push heroku master"
@@ -23,6 +23,7 @@
     "@types/sinon": "^10.0.16",
     "@types/socket.io": "^3.0.2",
     "chai": "^4.3.7",
+    "cross-env": "^7.0.3",
     "dotenv": "^16.3.1",
     "mocha": "^10.2.0",
     "sinon": "^15.2.0",
@@ -35,6 +36,7 @@
     "visible_logger": "^1.0.1"
   },
   "dependencies": {
+    "firebase": "^10.5.0",
     "firebase-admin": "^11.10.1",
     "fireorm": "^0.23.3",
     "redis": "^4.6.7",
