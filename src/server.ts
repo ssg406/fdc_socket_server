@@ -1,11 +1,9 @@
 import { Server, Socket } from 'socket.io';
-import { createAdapter } from 'socket.io-redis-adapter';
-import { createClient } from 'redis';
 import { loggerFactory } from 'visible_logger';
 import dotenv from 'dotenv';
 import DraftMember from './Draft';
 import { ClientIdentification, DraftPlayer, Events } from './types';
-import { Player, getPlayer } from './util/data';
+import { getPlayer } from './util/data';
 import playerManager from './PlayerManager';
 
 const logger = loggerFactory({ hideLogsDuringTest: true });
@@ -14,19 +12,6 @@ dotenv.config();
 const io = new Server({
   transports: ['websocket'],
 });
-
-// const pubClient = createClient({
-//   url: process.env.REDISCLOUD_URL,
-// });
-// const subClient = pubClient.duplicate();
-
-// try {
-//   Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
-//     io.adapter(createAdapter(pubClient, subClient));
-//   });
-// } catch (error) {
-//   logger.error('Unable to create Redis adapter', error as Error);
-// }
 
 logger.info('Server initialized', 'Controller');
 
