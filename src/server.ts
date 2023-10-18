@@ -2,9 +2,9 @@ import { Server, Socket } from 'socket.io';
 import { loggerFactory } from 'visible_logger';
 import dotenv from 'dotenv';
 import DraftMember from './Draft';
-import { ClientIdentification, DraftPlayer, Events } from './types';
 import { getPlayer } from './util/data';
 import playerManager from './PlayerManager';
+import { ClientIdentification, DraftPlayer, Events } from './types';
 
 const logger = loggerFactory({ hideLogsDuringTest: true });
 dotenv.config();

@@ -6,7 +6,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const visible_logger_1 = require("visible_logger");
 const server_1 = __importDefault(require("./server"));
 const dotenv_1 = __importDefault(require("dotenv"));
+if (process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'test') {
+    dotenv_1.default.config();
+}
 const logger = (0, visible_logger_1.loggerFactory)({ hideLogsDuringTest: true });
-dotenv_1.default.config();
-server_1.default.listen(3000);
-logger.info(`Listening on port ${process.env.PORT}`, 'Server');
+const port = parseInt(process.env.PORT) || 3000;
+server_1.default.listen(port);
+logger.info(`Server is listening on port ${port}`, 'Server');

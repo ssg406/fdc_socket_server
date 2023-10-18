@@ -1,5 +1,5 @@
 import { loggerFactory } from 'visible_logger';
-import { DraftPlayer, Events, DrumCorpsCaption, PickMessage } from './types';
+import { DraftPlayer, Events, PickMessage } from './types';
 
 import roomManager from './RoomManager';
 import io from './server';
