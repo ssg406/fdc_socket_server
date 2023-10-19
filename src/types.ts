@@ -2,7 +2,7 @@ import { Socket } from 'socket.io';
 import { Player } from './util/data';
 
 export interface DrumCorpsCaption {
-  drumCorpsCaptionId: string;
+  id: string;
   corps: DrumCorps;
   caption: Caption;
 }
