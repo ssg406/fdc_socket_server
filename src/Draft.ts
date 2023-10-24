@@ -22,14 +22,16 @@ class DraftMember {
       if (!roomManager.addRoom(this.tourId, this.player)) {
         logger.warn('Could not initialize room', 'Draft');
         this.player.socket.emit(Events.SERVER_ERROR, {
-          errorMessage: 'Could not create room',
+          errorMessage:
+            'Unable to initialize draft room on server. Try again in a few moments and contact us if this problem persists.',
         });
         return false;
       }
       if (!roomManager.addPlayer(this.player, this.tourId)) {
         logger.warn('Could not join player to room', 'Draft');
         this.player.socket.emit(Events.SERVER_ERROR, {
-          errorMessage: 'Could not join room',
+          errorMessage:
+            'Unable to join room. Attempt to start the draft again and contact us if this problem persists.',
         });
         return false;
       }
@@ -40,7 +42,8 @@ class DraftMember {
       if (!roomManager.addPlayer(this.player, this.tourId)) {
         logger.warn('Could not join room', 'Draft');
         this.player.socket.emit(Events.SERVER_ERROR, {
-          errorMessage: 'Could not join room',
+          errorMessage:
+            "Unable to join draft. The tour owner may not have initialized this tour's draft on the server yet.",
         });
         return false;
       }

@@ -69,6 +69,7 @@ export abstract class Events {
   static readonly CLIENT_SENDS_AUTO_PICK = 'CLIENT_SENDS_AUTO_PICK';
   static readonly SERVER_ERROR = 'SERVER_ERROR';
   static readonly CLIENT_LEAVE_ROOM = 'CLIENT_LEAVE_ROOM';
+  static readonly SERVER_COULD_NOT_JOIN_ROOM = 'COULD_NOT_JOIN_ROOM';
 }
 
 export enum Caption {

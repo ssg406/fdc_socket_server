@@ -27,10 +27,6 @@ io.on('connection', (socket: Socket) => {
     };
     const draftMember = new DraftMember(draftPlayer, data.tourId, data.action);
 
-    if (!draftMember.init()) {
-      logger.warn('Player could not connect to room', 'Controller');
-    }
-
     // Check if player has already connected and created draftMember
     if (playerManager.playerExists(data.playerId, socket)) return;
     logger.info('Setting listeners for new draft member', 'Controller');
