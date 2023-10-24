@@ -26,6 +26,7 @@ io.on('connection', (socket: Socket) => {
       draftComplete: false,
     };
     const draftMember = new DraftMember(draftPlayer, data.tourId, data.action);
+    draftMember.init();
 
     // Check if player has already connected and created draftMember
     if (playerManager.playerExists(data.playerId, socket)) return;
