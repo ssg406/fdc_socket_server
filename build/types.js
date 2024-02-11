@@ -31,6 +31,7 @@ Events.SERVER_CLIENT_MISSED_TURN = 'SERVER_CLIENT_MISSED_TURN';
 Events.CLIENT_SENDS_AUTO_PICK = 'CLIENT_SENDS_AUTO_PICK';
 Events.SERVER_ERROR = 'SERVER_ERROR';
 Events.CLIENT_LEAVE_ROOM = 'CLIENT_LEAVE_ROOM';
+Events.SERVER_COULD_NOT_JOIN_ROOM = 'COULD_NOT_JOIN_ROOM';
 var Caption;
 (function (Caption) {
     Caption["ge1"] = "ge1";
@@ -41,7 +42,7 @@ var Caption;
     Caption["brass"] = "brass";
     Caption["musicAnalysis"] = "musicAnalysis";
     Caption["percussion"] = "percussion";
-})(Caption = exports.Caption || (exports.Caption = {}));
+})(Caption || (exports.Caption = Caption = {}));
 var DrumCorps;
 (function (DrumCorps) {
     DrumCorps["theAcademy"] = "theAcademy";
@@ -66,4 +67,4 @@ var DrumCorps;
     DrumCorps["seattleCascades"] = "seattleCascades";
     DrumCorps["spiritOfAtlanta"] = "spiritOfAtlanta";
     DrumCorps["troopers"] = "troopers";
-})(DrumCorps = exports.DrumCorps || (exports.DrumCorps = {}));
+})(DrumCorps || (exports.DrumCorps = DrumCorps = {}));

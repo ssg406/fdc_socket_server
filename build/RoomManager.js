@@ -189,7 +189,7 @@ class RoomManager {
      */
     beginDraft(tourId) {
         logger.info(`Starting draft`, tourId);
-        this.shufflePlayers(tourId);
+        // this.shufflePlayers(tourId);
         server_1.default.to(tourId).emit(types_1.Events.SERVER_DRAFT_BEGIN);
         this.rooms[tourId].draftInProgress = true;
         this.startTurn(tourId);
@@ -225,7 +225,7 @@ class RoomManager {
             throw Error('Could not remove pick: room does not exist');
         logger.info(`Removing pick ${pick.corps} ${pick.caption} from pool`, tourId);
         let currentPicks = this.rooms[tourId].availablePicks;
-        currentPicks = currentPicks.filter((p) => p.drumCorpsCaptionId !== pick.drumCorpsCaptionId);
+        currentPicks = currentPicks.filter((p) => p.id !== pick.id);
         this.rooms[tourId].availablePicks = currentPicks;
     }
     /**
@@ -234,8 +234,8 @@ class RoomManager {
      */
     startTurn(tourId) {
         const draftData = this.rooms[tourId];
-        logger.info(`Starting turn number ${draftData.turnNumber}`, tourId);
-        const nextTurnNumber = (draftData.turnNumber + 2) % draftData.clients.length;
+        const nextTurnNumber = (draftData.turnNumber + 1) % draftData.clients.length;
+        logger.info(`Starting turn number ${draftData.turnNumber}, next turn number is ${nextTurnNumber}`, tourId);
         server_1.default.to(tourId).emit(types_1.Events.SERVER_START_TURN, {
             currentPlayerId: draftData.clients[draftData.turnNumber].model.id,
             currentPlayerName: draftData.clients[draftData.turnNumber].model.displayName,
@@ -297,7 +297,7 @@ class RoomManager {
         });
         const currentTurnNumber = (this.rooms[tourId].turnNumber + 1) % this.rooms[tourId].clients.length;
         if (currentTurnNumber === 0) {
-            this.shufflePlayers(tourId);
+            //this.shufflePlayers(tourId);
             this.rooms[tourId].roundNumber++;
         }
         this.rooms[tourId].turnNumber = currentTurnNumber;
